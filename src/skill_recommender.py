@@ -1,10 +1,10 @@
 import json
 
-f = open("skill_factors.json")
+f = open("new_factors.json")
 factors = json.load(f)
 f.close()
 
-test_skills = ["javascript", "js", "typescript", "angularjs"]
+test_skills = ["golang", "javascript", "css", "java"]
 
 
 class node:
