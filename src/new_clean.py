@@ -11,12 +11,12 @@ def read_file():
     case_pair = dict()
     with open("./skill2vec_50K.csv", "r") as file:
         data = csv.reader(file)
-        take = 1_000
+        # take = 1_000
         for rows in data:
-            print("take = ", take)
-            take = take - 1
-            if take == 0:
-                break;
+            # print("take = ", take)
+            # take = take - 1
+            # if take == 0:
+            #     break;
             cleaned =  list(filter(lambda x: x is not None and x.strip() != "", rows))
             item = []
             for row in cleaned[1:]:

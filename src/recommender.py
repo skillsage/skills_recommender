@@ -1,5 +1,5 @@
 import json
-
+import psycopg2 as pg
 
 class node:
     factor = 0
@@ -20,14 +20,25 @@ class node:
 
 
 def recommend(skills: list[str], take: int = 20):
-    f = open("new_factors.json")
-    factors = json.load(f)
-    pairs = open("case_pair.json")
-    case_pair = json.load(pairs)
+    postgres_url = "postgresql://localhost:5432/skill_sage?user=admin&password=admin"
+    conn = pg.connect(postgres_url)
+    conn.autocommit = True
+    cur =  conn.cursor()    
+
+    fq = f"""
+    SELECT skill, factor from skill_factors WHERE skill IN %s LIMIT 1;
+    """
+    cur.execute(fq, (tuple(skills),))
+    factor_records = cur.fetchall()
+    factors : dict[str, dict[str, int]] = dict()
+    for item in factor_records:
+        if item is not None:
+            factors[item[0]] = item[1]
+        
     pairs = dict()
     for skill in skills:
         if skill not in factors:
-            pass
+            continue
         for k, v in factors[skill].items():
             # key = skill, value = factor
             if k not in pairs:
@@ -35,8 +46,8 @@ def recommend(skills: list[str], take: int = 20):
                 pairs[k].add(v)
             else:
                 pairs[k].add(v)
-    # here
-    # [{"sdsd": factor}]
+    
+
     pair_list = list()
     for k, v in pairs.items():
         pair_list.append({"skill": k, "average": v.average()})
@@ -49,13 +60,11 @@ def recommend(skills: list[str], take: int = 20):
     )
 
     clean = list(filter(lambda x: x not in skills, result))[:take]
-    return list(map(lambda x : case_pair[x],clean))
+    pq = f"""
+        SELECT name FROM skills WHERE lower IN %s;
+    """
+    cur.execute(pq, (tuple(clean),))
+    pair_records = cur.fetchall()
+    return list(map(lambda x: x[0] ,pair_records))
 
-# skills
-# lower, cased
-# lowercase, Correct Case
-
-# skill_factors
-# skill, factors: {asdasd: 23, asdasd: 34534}
-
-print(recommend(["reactjs", "javascript", "css"]))
+print(recommend(["javascript", "html", "jquery", "csss"]))
