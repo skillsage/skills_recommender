@@ -39,16 +39,16 @@ def save_data():
 
         for k, v in factors.items():
             query = f"""
-                INSERT INTO skill_factors (skill, factor, created) VALUES (%s, %s, %s) ON CONFLICT (skill, factor) DO NOTHING;
+                INSERT INTO skill_factors (skill, factor, created) VALUES (%s, %s, %s);
             """
             cur.execute(query, (k, json.dumps(v), datetime.now()))
 
         pairs = open("case_pair.json")
         case_pair: dict[str, str] = json.load(pairs)
 
-        q = "CREATE UNIQUE INDEX IF NOT EXISTS lower_unique_idx ON skills(lower)"
+        # q = "CREATE UNIQUE INDEX IF NOT EXISTS lower_unique_idx ON skills(lower)"
 
-        cur.execute(q)
+        # cur.execute(q)
 
         for k, v in case_pair.items():
             query = """
@@ -59,7 +59,7 @@ def save_data():
                 )
             # """
             query = """
-                INSERT INTO skills (lower, name, created) VALUES (%s, %s, %s) ON CONFLICT (lower) DO NOTHING
+                INSERT INTO skills (lower, name, created) VALUES (%s, %s, %s)
                 """
             cur.execute(query, (k, v, datetime.now()))
 
